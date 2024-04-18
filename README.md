@@ -1,25 +1,46 @@
-# IPTV-M3U-Checker 直播源批量检测程序
+# IPTV-M3U-Checker2 直播源批量检测程序
 
 ## 简介
 
-Python初学者，能力有限，还请见谅。
-
-针对目前`个人使用`的痛点，实现直播源`自动化定时检测`，便于及时替换失效源。一般不会出现大规模失效，除非同一域名/ip挂了，那么替换即可。如果是需要初次检测某一（大量）直播源，请使用其他工具。
+针对目前`个人使用`的痛点，实现多个直播源`自动化定时检测`，便于及时替换失效源。一般不会出现大规模失效，除非同一域名/ip挂了，那么替换即可。
 
 本项目改自<a href="https://github.com/AlexKwan1981/iptv-m3u8-checker" target="_blank">AlexKwan1981/iptv-m3u8-checker</a>，感谢！
 
-增加了<a href="https://ding-doc.dingtalk.com/doc#/serverapi2/krgddi" target="_blank">钉钉群机器人</a>，可以配合定时任务，实现直播源的定时检测与通知，使用`Office Web Viewer`展示测试结果。
+增加了<a href="https://ding-doc.dingtalk.com/doc#/serverapi2/krgddi" target="_blank">钉钉群机器人</a>（可选），可以配合定时任务，实现直播源的定时检测与通知，使用`Office Web Viewer`展示测试结果。
 
-增加了直播源连接速度测试（占用资源和时间可能较长，默认关闭），参考项目<a href="https://github.com/chaichunyang/m3u-tester" target="_blank">chaichunyang/m3u-tester</a>，感谢！
+增加了直播源连接速度、视频文件格式解析测试（占用资源和时间可能较长，参数testspeed>0），注意部分linux机器没有显卡无法安装cv2模块，所以视频文件格式解析可能无法检测出结果。参考项目<a href="https://github.com/chaichunyang/m3u-tester" target="_blank">chaichunyang/m3u-tester</a>，感谢！
 
-基于个人能力和`.m3u`文件自身标签的原因，暂时删除了对`.m3u`文件的支持（原项目也不完全支持），目前仅支持`.txt`直播源的检测。（有许多在线工具/软件能较好地将`.m3u`转为`.txt`）
+目前支持`.txt`和'.m3u'直播源的检测。
 
-### 主要功能
-对直播源进行批量检测，并通过钉钉群机器人及时反馈检测结果。
+增加了多线程检测（默认开5个线程）。
+
+检测结果可以给各种播放器支持的格式(包括标准txt格式，m3u格式，以及diyp支持的txt格式），txt格式主要是（节目名,url），一行一条；m3u格式带（分组、名称、url）（不含logo地址）；diyp支持的txt格式主要跟标准txt格式区别是，同一个节目如果有多个url地址的话，一行内用#隔开。
+
+同时支持按照playlists/sortlist.xlsx文件进行排序和筛选，字段包括：
+  -节目名称（title），比如CCTV-1, CCTV-1 综合，CCTV1，CCTV-1 4K等等
+  -节目统一名称（uniquename），比如CCTV-1。
+  -分组名称（tvgroup），比如1.央视，前面带数字1主要是排序方便。
+  -排序（tvorder），同一分组内的排序次序。显示时按照tvgroup，tvorder进行排序。注意uniquename和tvorder最好一致，不然一个节目可能分拆成多条记录显示。
+
+支持将检测结果文件输出到指定目的地，目前只支持copy到目的路径，未来可支持http/ssh等方式copy。
+
+## 主要功能
+对直播源进行批量检测，并（可选）通过钉钉群机器人及时反馈检测结果，同时输出给各种播放器支持的格式。
+-1.检查本地文件夹(playlists)内所有文件
+    -ctype=0x01; myList=iptv.getPlaylist()
+-2.检查外部指定文件
+    -ctype=0x02; myList=iptv.getPlaylist(ctype=ctype,checkfile_list=checkfile_list)
+-2.2.检查外部指定文件；除了在预设清单(tvorders)里面的节目外, 允许关键字清单的节目加入
+    -ctype=0x10|0x02; myList=iptv.getPlaylist(ctype=ctype,checkfile_list=checkfile_list,keywords=keywords)
+-3.检查本地文件夹，加上外部指定文件
+    -ctype=0x01|0x02; myList=iptv.getPlaylist(ctype=ctype,checkfile_list=checkfile_list)
+-3.2.【默认】检查本地文件夹，加上外部指定文件；除了在预设清单(tvorders)里面的节目外, 允许关键字清单的节目加入
+    -ctype=0x01|0x02|0x10; myList=iptv.getPlaylist(ctype=ctype,checkfile_list=checkfile_list,keywords=keywords)
+ 
 - 将待检测的直播源文件放置到`playlists/`文件夹下：  
   - 支持在线直链（如`raw.githubusercontent.com`，`gitee.com/*/raw/`等，可添加多个），自动下载至`playlists/`文件夹，文件名相同则直接覆盖（类似自动更新）
   - 支持多个本地文件
-  - 目前仅支持`.txt`格式，详见playlists文件下的demo示例
+  - 目前仅支持`.txt`格式、'.m3u'格式
 - 直播源检测
   - 对每个连接进行测试，同时记录当前网络对该连接的延迟（参考<a href="https://github.com/EvilCult/iptv-m3u-maker" target="_blank">EvilCult/iptv-m3u-maker</a>）  
   - 支持测试有效直播源的连接速度
@@ -29,11 +50,11 @@ Python初学者，能力有限，还请见谅。
   - 通过`DataFrame.to_excel()`在`output/`目录下生成全部测试结果的Excel 预览，以链接形式通过钉钉群机器人发送
   <img src="https://ae01.alicdn.com/kf/U080f091db1d24cc788b72b65efef7b64H.jpg" height = "400" alt="钉钉群通知展示" align=center />
   
-  - 生成的文件名以`测试时间+token`命名，防止直播源泄露
+  - 生成的文件名以`测试时间`命名，防止直播源泄露
 
 ## 使用方法
 
-本项目基于 **python3.7** 进行开发 
+本项目基于 **python3** 进行开发 
 
 - 模块安装 Requirements
 ```
@@ -41,9 +62,10 @@ pip3 install pandas
 pip3 install requests
 pip3 install DingtalkChatbot
 pip3 install openpyxl
+pip3 install cv2, opencv-python
 
 * 国内可以使用-i参数加快下载速度
-如：pip3 install DingtalkChatbot -i https://pypi.tuna.tsinghua.edu.cn/simple
+如：pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 - 钉钉群机器人配置
@@ -55,41 +77,86 @@ pip3 install openpyxl
   - 获得`webhook`
   <img src="https://ae01.alicdn.com/kf/U78defb7a5d954af5ae962d4b40b81d34D.jpg" height = "400" alt="secret" align=center />
 
-- 主要参数  
-  - `webhook`：填入钉钉群自定义机器人的token
+- 主要参数  (myconfig.json)
+- -`testspeed`：是否开启直播源连接速度测试，默认关闭（开启可能增加耗时与资源占用）
+    -0:关闭
+    -1:开启
+    >100:开启并且筛选分辨率低于该数字的作为无效来源
+  -'ctype':检查类型（可以组合）
+    -1（0x01）：检查本地playlists文件夹下的.txt,.m3u文件
+    -2（0x02）：检查外部文件，对应checkfile_list参数
+    -4（0x04）：检查上次检查的节目源（保存在sqlite3数据库中）
+    -8（0x08）：只检测，不保存/更新结果
+    -16（0x10）：只检查在预设清单(sortlists.xlsx)里面tvorder<9999的节目,除此之外，允许关键字清单的节目（参数keywords）加入。该功能比较有用，大多数人只要看cctv和各大卫视节目外，还有就是本地的其他节目。那么sortlists里面保存所有cctv和各大卫视节目名称外，本地其他节目可用keywords包括，比如关键字['赣州']。
+    -以上功能可以组合，比如ctype=0x1+0x2+0x10=19，表明同时检查本地/外部/预设清单过滤的节目。
+
+  -'checkfile_list':外部文件地址清单。（ctype包含2时需要）
+    -可以是http/https地址
+    -也可以是本地文件地址
+
+  -'otype':检测结果输出格式，输出后需要拷贝到其他地方请搭配sendfile_list参数使用
+    -0x1：diyp播放器格式
+    -0x2：标准m3u格式
+    -0x4：标准txt格式
+    -组合，以上可以组合输出多个格式
+
+  -'sendfile_list':检测结果同步拷贝到目的地列表
+    -文件列表，长度与次序都必须与otype参数一致，如果某个格式不需要拷贝，则设为""
+  
+  以下参数可选
+  ```  
+  -'max_check_count'：最大检测节目数量，默认是2000个
   ```
-  修改main.py第23行
-  webhook = 'https://oapi.dingtalk.com/robot/send?access_token=这里填写自己钉钉群自定义机器人的token'
   ```
-  - `secret`：创建机器人勾选“加签”选项所设置的密钥
+  - `webhook`：填入钉钉群自定义机器人的token，可以不配置即关闭
   ```
-  修改main.py第24行
-  secret = 'SEC11b9...这里填写自己的加密设置密钥'  # 创建机器人勾选“加签”选项时使用
+  "webhook": 'https://oapi.dingtalk.com/robot/send?access_token=这里填写自己钉钉群自定义机器人的token'
   ```
-  - `SpeedTest`：是否开启直播源连接速度测试，默认关闭（开启可能增加耗时与资源占用）
+  - `secret`：创建机器人勾选“加签”选项所设置的密钥，同上
   ```
-  修改main.py第29行
-  SpeedTest = True # default False
+    "secret":"SEC11b9...这里填写自己的加密设置密钥"  # 创建机器人勾选“加签”选项时使用
   ```
   - `your_domain`：生成的excel文件所在服务器域名/ip
+    修改main.py 注意添加 http / https
   ```
-  修改main.py第31行 注意添加 http / https
   your_domain = 'https://list.domain.com'
-
-  如果没有服务器 / 不需要通知，请将your_domain置为空值
-  your_domain = ''
   ```
   - `playlist_file` = 'playlists/' 
+  ```
   直播源源文件存放路径
-  - `delay_threshold` = 5000  
+  ```
+  - `delay_threshold` = 6000  
+  ```
   响应延迟阈值，单位毫秒，超过这个阈值则认为直播源质量较差
+  ```
 - 运行
+  python main.py
+
+
+## 常用参数配置
+
+- 只检测本地文件：
 ```
-只检测本地文件：python3 main.py
-检测直链文件：python3 main.py https://raw.githubusercontent.com.txt https://gitee.com/a/b/raw.txt http://c.txt
+{
+    "testspeed":1,
+    "ctype":1,
+}
+```
 
-也可配合crontab等定时执行
+- 检测外部文件，同时按sortlists.xlsx文件进行限制：
+```
+{
+    "testspeed":1,
+    "ctype":18,
+    "checkfile_list":["https://github.com/users/project1/raw/master/iptv.txt",
+                      "C:\\Users\\admin\\Desktop\\live.m3u"],
+    "otype":7,
+    "keywords":["江西"]
+  }
+```
 
+- 也可配合crontab等定时执行
+```
 * 检测直链时，自动下载至playlists/，而后检测该目录下所有文件
 ```
 
@@ -105,7 +172,6 @@ location ~ \.(py|pyc|txt|sqlite3)$ {
 ```
 
 ## 待优化内容
-- 增加对telegram bot的支持（争取
-- 部分直播源测速问题
-- 代码优化
+- 增加对输出copy的支持（支持ssh/ftp等网络方式）
+- 增加对微信推送的支持
 - ……

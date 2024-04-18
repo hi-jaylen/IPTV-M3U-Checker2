@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# @Time    : 2020/06/26 17:20
-# @Author  : An Ju
-# @Email   : juan_0525@outlook.com
+# @Time    : 2024/04/16 17:20
+# @Author  : Allen zh
+# @Email   : allenzh@outlook.com
 # @File    : tools.py
 
 
