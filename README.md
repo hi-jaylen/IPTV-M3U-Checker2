@@ -141,7 +141,7 @@ pip3 install cv2, opencv-python
   python main.py
 ```
 
-## 常用参数配置
+## 常用参数配置(myconfig.json)
 
 - 只检测本地文件：
 ```
@@ -164,19 +164,21 @@ pip3 install cv2, opencv-python
 ```
 
 - sortlists.xlsx文件修改：
-|title     | tvgroup |uniquename| url             | memo  | tvorder |
-|-------   | --------|----------|-------------    |-------|---------|
-|CCTV-1综合| 1.央视   | CCTV-1   |https:///url.com|       |   1     |
-|CCTV-1    | 1.央视   | CCTV-1   |https:///url.com|       |   1     |
-|CCTV1     | 1.央视   | CCTV-1   |https:///url.com|       |   1     |
-|CCTV1 HD  | 1.央视   | CCTV-1   |https:///url.com|       |   1     |
-|CCTV-2    | 1.央视   | CCTV-2   |https:///url.com|       |   2     |
-|四海钓鱼   | 1.央视   | 四海钓鱼  |https:///url.com|       |   9999  |
 
- 注意：
-   - 同一个节目频道（比如cctv-1），uniquename和tvorder必须相同。其中uniquename是最终显示的节目名称 
-   - 同一个节目频道（比如cctv-1），title最好都慢慢搜录进来，避免搜索的时候因为不在这个xls文件列表清单内而被剔除
-   - 检测时，系统会自动对url相同的进行去重，只保留一个，哪一个？我也不知道。
+  |title     | tvgroup |uniquename| url             | memo  | tvorder |
+  |-------   | --------|----------|-------------    |-------|---------|
+  |CCTV-1综合| 1.央视   | CCTV-1   |https:///url1.com|       |   1     |
+  |CCTV-1    | 1.央视   | CCTV-1   |https:///url2.com|       |   1     |
+  |CCTV1     | 1.央视   | CCTV-1   |https:///url3.com|       |   1     |
+  |CCTV1 HD  | 1.央视   | CCTV-1   |https:///url4.com|       |   1     |
+  |CCTV-2    | 1.央视   | CCTV-2   |https:///url5.com|       |   2     |
+  |四海钓鱼   | 1.央视   | 四海钓鱼  |https:///url6.com|       |   9999  |
+
+  注意：
+    - 同一个节目频道（比如cctv-1），uniquename和tvorder必须相同。其中uniquename是最终显示的节目名称 
+    - 同一个节目频道（比如cctv-1），title最好都慢慢搜录进来，避免搜索的时候因为不在这个xls文件列表清单内而被剔除
+    - 检测时，系统会自动对url相同的进行去重，只保留一个，哪一个？我也不知道。
+    - tvorder=9999, 默认不检测该节目
 
 - 也可配合crontab等定时执行
 ```
