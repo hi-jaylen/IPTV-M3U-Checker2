@@ -120,6 +120,7 @@ class Iptv(object):
                         r.encoding = 'utf-8'
                         with open(path, "wb") as fp:
                             fp.write(r.content)
+                        self.__logger("url-get:"+url)
                         checkfile_list.append(path)
                     else:
                         self.__logger("Warning Get url "+url)
