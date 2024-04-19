@@ -139,6 +139,8 @@ pip3 install cv2, opencv-python
 ## 运行
 ```
   python main.py
+
+  为了方便没有python环境的用户(Windows),已经编译成exe文件，直接下载main.rar，解压后运行main.exe即可。
 ```
 
 ## 常用参数配置(myconfig.json)

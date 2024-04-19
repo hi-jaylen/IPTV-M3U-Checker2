@@ -522,13 +522,19 @@ class Iptv(object):
             #等待检测队列为是否为空，然后最多等待10*5秒后强制退出主进程
             while not playlistQueue.empty():
                 time.sleep(5)
+            idlist=[]
             for i in range(10):
-                idlist=[]
                 for thr in thrlist:
                     if (thr.is_alive()): idlist.append(thr.ident)
                 if(len(idlist)>0):
                     self.__logger("[%s] Continue waiting threadids:%s"%(time.asctime(),idlist))         
                     time.sleep(5)
+                    idlist=[]
+                else:
+                    break
+            if(len(idlist)>0):
+                self.__logger("timeout threadid:%s ,abandoned."%(idlist))
+            
             '''
             for i in range(len(thrlist)):
                 thrlist[i].join()

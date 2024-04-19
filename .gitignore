@@ -11,6 +11,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+*.dist/
 downloads/
 eggs/
 .eggs/
@@ -130,6 +131,7 @@ dmypy.json
 
 # others
 *.mp4
+main.rar
 playlists/*.txt
 playlists/*.m3u
 output/
